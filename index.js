@@ -17,6 +17,7 @@ async function run() {
     await client.connect();
     const carPartsCollection = client.db('car_parts').collection('parts');
     const purchaseCollection = client.db('car_parts').collection('purchase');
+    const usersCollection = client.db('car_parts').collection('users');
 
     app.get('/carParts', async (req, res) => {
       const query = {};
@@ -32,6 +33,19 @@ async function run() {
       res.send(carParts);
     });
 
+    app.put('/user/:email', async(req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = {email: email};
+      const options = {upsert: true};
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    })
+
+    //my purchase
     app.get('/purchase', async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
@@ -40,6 +54,7 @@ async function run() {
       res.send(orders);
     })
 
+    //delete
     app.delete('/purchase/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -47,6 +62,7 @@ async function run() {
       res.send(result);
     });
 
+    //post my purchase
     app.post('/purchase', async (req, res) => {
       const purchase = req.body;
       const partsQuantity = purchase.partsQuantity;
