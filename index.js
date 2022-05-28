@@ -32,6 +32,16 @@ async function run() {
       res.send(carParts);
     });
 
+    app.get('/purchase', async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = purchaseCollection.find(query);
+      const orders = await cursor.toArray();
+      res.send(orders);
+    })
+
+
+
     app.post('/purchase', async (req, res) => {
       const purchase = req.body;
       const partsQuantity = purchase.partsQuantity;
@@ -39,10 +49,10 @@ async function run() {
       const userQuantity = purchase.userQuantity;
       if (partsQuantity >= userQuantity && userQuantity >= minimumQuantity) {
         const result = await purchaseCollection.insertOne(purchase);
-        return res.send({success: true, result});
+        return res.send({ success: true, result });
       }
       else {
-        return res.send({success: false});
+        return res.send({ success: false });
       }
     });
 
