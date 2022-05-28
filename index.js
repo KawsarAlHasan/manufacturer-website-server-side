@@ -13,7 +13,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-function varifyJWT(req, res, next){
+function verifyJWT(req, res, next){
   const authHeader = req.headers.authorization;
   if(!authHeader){
     return res.status(401).send({message: 'UnAuthrized access'})
@@ -48,6 +48,11 @@ async function run() {
       const carParts = await carPartsCollection.findOne(query);
       res.send(carParts);
     });
+
+    app.get('/user', async(req, res)=>{
+      const users = await usersCollection.find().toArray();
+      res.send(users);
+    })
 
     app.put('/user/:email', async(req, res) => {
       const email = req.params.email;
