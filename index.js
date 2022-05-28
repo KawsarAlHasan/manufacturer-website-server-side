@@ -13,15 +13,15 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-function verifyJWT(req, res, next){
+function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
-  if(!authHeader){
-    return res.status(401).send({message: 'UnAuthrized access'})
+  if (!authHeader) {
+    return res.status(401).send({ message: 'UnAuthrized access' })
   }
   const token = authHeader.split(' ')[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, decoded){
-    if(err){
-      return res.status(403).send({message: 'fobidden access'});
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: 'fobidden access' });
     }
     req.decoded = decoded;
     next();
@@ -49,23 +49,30 @@ async function run() {
       res.send(carParts);
     });
 
-    app.get('/user', async(req, res)=>{
+    app.get('/user', async (req, res) => {
       const users = await usersCollection.find().toArray();
       res.send(users);
     })
 
-    app.put('/user/:email', async(req, res) => {
+    app.put('/user/:email', async (req, res) => {
       const email = req.params.email;
       const user = req.body;
-      const filter = {email: email};
-      const options = {upsert: true};
+      const filter = { email: email };
+      const options = { upsert: true };
       const updateDoc = {
         $set: user,
       };
       const result = await usersCollection.updateOne(filter, updateDoc, options);
-      const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'})
-      res.send({result, token});
+      const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+      res.send({ result, token });
     })
+
+    // parts post
+    app.post('/addParts', async (req, res) => {
+      const newParts = req.body;
+      const result = await carPartsCollection.insertOne(newParts);
+      res.send(result);
+    });
 
     //my purchase
     app.get('/purchase', async (req, res) => {
