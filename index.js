@@ -53,11 +53,41 @@ async function run() {
       res.send(carParts);
     });
 
-    //Delete
+    //parts Delete
     app.delete("/carParts/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await carPartsCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // parts post
+    app.post("/carParts", async (req, res) => {
+      const newParts = req.body;
+      const result = await carPartsCollection.insertOne(newParts);
+      res.send(result);
+    });
+
+    // parts update
+    app.put("/carParts/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateParts = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          name: updateParts.name,
+          price: updateParts.price,
+          quantity: updateParts.quantity,
+          orderQuantity: updateParts.orderQuantity,
+          description: updateParts.description,
+        },
+      };
+      const result = await carPartsCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
       res.send(result);
     });
 
@@ -118,13 +148,6 @@ async function run() {
         { expiresIn: "1h" }
       );
       res.send({ result, token });
-    });
-
-    // parts post
-    app.post("/addParts", async (req, res) => {
-      const newParts = req.body;
-      const result = await carPartsCollection.insertOne(newParts);
-      res.send(result);
     });
 
     //my purchase
