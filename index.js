@@ -68,6 +68,23 @@ async function run() {
       res.send(result);
     });
 
+    // temporary to update field on Products
+    // app.get("/addselPrice", async (req, res) => {
+    //   const filter = {};
+    //   const options = { upsert: true };
+    //   const updatedDoc = {
+    //     $set: {
+    //       selPrice: 9999,
+    //     },
+    //   };
+    //   const result = await carPartsCollection.updateMany(
+    //     filter,
+    //     updatedDoc,
+    //     options
+    //   );
+    //   res.send(result);
+    // });
+
     // parts update
     app.put("/carParts/:id", async (req, res) => {
       const id = req.params.id;
