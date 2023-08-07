@@ -36,7 +36,8 @@ async function run() {
   try {
     await client.connect();
     const carPartsCollection = client.db("car_parts").collection("parts");
-    const purchaseCollection = client.db("car_parts").collection("purchase");
+    const addToCardCollection = client.db("car_parts").collection("addtocard");
+    const ordersCollection = client.db("car_parts").collection("orders");
     const usersCollection = client.db("car_parts").collection("users");
 
     app.get("/carParts", async (req, res) => {
@@ -167,36 +168,59 @@ async function run() {
       res.send({ result, token });
     });
 
-    //my purchase
-    app.get("/purchase", async (req, res) => {
+    //get add to card
+    app.get("/addToCard", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
-      const cursor = purchaseCollection.find(query);
-      const orders = await cursor.toArray();
-      res.send(orders);
-    });
-
-    //delete purchase
-    app.delete("/purchase/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await purchaseCollection.deleteOne(query);
+      const cursor = addToCardCollection.find(query);
+      const result = await cursor.toArray();
       res.send(result);
     });
 
-    //post my purchase
-    app.post("/purchase", async (req, res) => {
+    //delete add to card
+    app.delete("/addToCard/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await addToCardCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    //post add to card
+    app.post("/addToCard", async (req, res) => {
       const purchase = req.body;
       const partsQuantity = purchase.partsQuantity;
       const minimumQuantity = purchase.minimumQuantity;
       const userQuantity = purchase.userQuantity;
       if (partsQuantity >= userQuantity && userQuantity >= minimumQuantity) {
-        const result = await purchaseCollection.insertOne(purchase);
+        const result = await addToCardCollection.insertOne(purchase);
         return res.send({ success: true, result });
       } else {
         return res.send({ success: false });
       }
     });
+
+    // orders start
+    app.get("/orders", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = ordersCollection.find(query);
+      const orders = await cursor.toArray();
+      res.send(orders);
+    });
+
+    app.get("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/orders", async (req, res) => {
+      const orders = req.body;
+      const result = await ordersCollection.insertOne(orders);
+      res.send(result);
+    });
+    // orders end
   } finally {
   }
 }
