@@ -221,6 +221,21 @@ async function run() {
       res.send(result);
     });
     // orders end
+
+    // manage orders start
+    app.get("/manageOrders", async (req, res) => {
+      const result = await ordersCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/manageOrders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.findOne(query);
+      res.send(result);
+    });
+
+    // manage orders end
   } finally {
   }
 }
