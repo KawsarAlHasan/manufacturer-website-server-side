@@ -235,6 +235,24 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/manageOrders/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateStatus = req.body;
+      const query = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          status: updateStatus.status,
+        },
+      };
+      const result = await ordersCollection.updateOne(
+        query,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+
     // manage orders end
   } finally {
   }
