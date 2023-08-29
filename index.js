@@ -39,7 +39,12 @@ async function run() {
     const addToCardCollection = client.db("car_parts").collection("addtocard");
     const ordersCollection = client.db("car_parts").collection("orders");
     const usersCollection = client.db("car_parts").collection("users");
+    const categoryCollection = client.db("car_parts").collection("category");
+    const subCategoryCollection = client
+      .db("car_parts")
+      .collection("subcategory");
 
+    // get all products
     app.get("/carParts", async (req, res) => {
       const query = {};
       const cursor = carPartsCollection.find(query);
@@ -47,6 +52,15 @@ async function run() {
       res.send(carParts);
     });
 
+    // clothes category
+    app.get("/clothes", async (req, res) => {
+      const subCategoryname = req.query.subCategory;
+      const cursor = carPartsCollection.find({ category: subCategoryname });
+      const carParts = await cursor.toArray();
+      res.send(carParts);
+    });
+
+    // get product id
     app.get("/carParts/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -69,6 +83,15 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/productscategory", async (req, res) => {
+      const query = {};
+      const result = await carPartsCollection
+        .find(query)
+        .project({ category: 1 })
+        .toArray();
+      res.send(result);
+    });
+
     // temporary to update field on Products
     // app.get("/addselPrice", async (req, res) => {
     //   const filter = {};
@@ -86,7 +109,8 @@ async function run() {
     //   res.send(result);
     // });
 
-    // parts update
+    // Product update only admin
+
     app.put("/carParts/:id", async (req, res) => {
       const id = req.params.id;
       const updateParts = req.body;
@@ -108,6 +132,60 @@ async function run() {
       );
       res.send(result);
     });
+
+    // categoryCollection start for admin
+    app.get("/category", async (req, res) => {
+      const result = await categoryCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/category/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await categoryCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/category", async (req, res) => {
+      const newCategory = req.body;
+      const result = await categoryCollection.insertOne(newCategory);
+      res.send(result);
+    });
+
+    app.delete("/category/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await categoryCollection.deleteOne(query);
+      res.send(result);
+    });
+    // categoryCollection end for admin
+
+    // sub category start for admin
+    app.get("/subcategory", async (req, res) => {
+      const result = await subCategoryCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/subcategory/search", async (req, res) => {
+      const subCategoryname = req.query.category;
+      const cursor = subCategoryCollection.find({ category: subCategoryname });
+      const carParts = await cursor.toArray();
+      res.send(carParts);
+    });
+
+    app.post("/subcategory", async (req, res) => {
+      const newCategory = req.body;
+      const result = await subCategoryCollection.insertOne(newCategory);
+      res.send(result);
+    });
+
+    app.delete("/subcategory/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await subCategoryCollection.deleteOne(query);
+      res.send(result);
+    });
+    // sub category end for admin
 
     // get users
     app.get("/users", async (req, res) => {
@@ -260,9 +338,9 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Hello manufacturer website");
+  res.send("Hello Two Start Fashion website");
 });
 
 app.listen(port, () => {
-  console.log(`Manufacturer website app listening on port ${port}`);
+  console.log(`Two Star Fashion website app listening on port ${port}`);
 });
