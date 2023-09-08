@@ -35,14 +35,13 @@ function verifyJWT(req, res, next) {
 async function run() {
   try {
     await client.connect();
-    const carPartsCollection = client.db("car_parts").collection("parts");
+    const carPartsCollection = client.db("car_parts").collection("products");
     const addToCardCollection = client.db("car_parts").collection("addtocard");
     const ordersCollection = client.db("car_parts").collection("orders");
     const usersCollection = client.db("car_parts").collection("users");
     const categoryCollection = client.db("car_parts").collection("category");
-    const subCategoryCollection = client
-      .db("car_parts")
-      .collection("subcategory");
+    const subCategoryColl = client.db("car_parts").collection("subcategory");
+    const upComingCollection = client.db("car_parts").collection("upComing");
 
     // get all products
     app.get("/carParts", async (req, res) => {
@@ -52,10 +51,10 @@ async function run() {
       res.send(carParts);
     });
 
-    // clothes category
+    // search clothes category
     app.get("/clothes", async (req, res) => {
       const subCategoryname = req.query.subCategory;
-      const cursor = carPartsCollection.find({ category: subCategoryname });
+      const cursor = carPartsCollection.find({ subcategory: subCategoryname });
       const carParts = await cursor.toArray();
       res.send(carParts);
     });
@@ -160,29 +159,50 @@ async function run() {
     });
     // categoryCollection end for admin
 
+    // Up Coming
+    app.get("/upComing", async (req, res) => {
+      const result = await upComingCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Up Coming start for admin
+    app.post("/upComing", async (req, res) => {
+      const newCategory = req.body;
+      const result = await upComingCollection.insertOne(newCategory);
+      res.send(result);
+    });
+
+    app.delete("/upComing/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await upComingCollection.deleteOne(query);
+      res.send(result);
+    });
+    // Up Coming end for admin
+
     // sub category start for admin
     app.get("/subcategory", async (req, res) => {
-      const result = await subCategoryCollection.find().toArray();
+      const result = await subCategoryColl.find().toArray();
       res.send(result);
     });
 
     app.get("/subcategory/search", async (req, res) => {
       const subCategoryname = req.query.category;
-      const cursor = subCategoryCollection.find({ category: subCategoryname });
+      const cursor = subCategoryColl.find({ category: subCategoryname });
       const carParts = await cursor.toArray();
       res.send(carParts);
     });
 
     app.post("/subcategory", async (req, res) => {
       const newCategory = req.body;
-      const result = await subCategoryCollection.insertOne(newCategory);
+      const result = await subCategoryColl.insertOne(newCategory);
       res.send(result);
     });
 
     app.delete("/subcategory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result = await subCategoryCollection.deleteOne(query);
+      const result = await subCategoryColl.deleteOne(query);
       res.send(result);
     });
     // sub category end for admin
