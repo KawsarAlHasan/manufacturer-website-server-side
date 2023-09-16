@@ -42,6 +42,7 @@ async function run() {
     const categoryCollection = client.db("car_parts").collection("category");
     const subCategoryColl = client.db("car_parts").collection("subcategory");
     const upComingCollection = client.db("car_parts").collection("upComing");
+    const reviewsCollection = client.db("car_parts").collection("reviews");
 
     // get all products
     app.get("/carParts", async (req, res) => {
@@ -59,7 +60,7 @@ async function run() {
       res.send(carParts);
     });
 
-    // get product id
+    // get particular product by id
     app.get("/carParts/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -67,7 +68,7 @@ async function run() {
       res.send(carParts);
     });
 
-    //parts Delete
+    //product Delete only admin
     app.delete("/carParts/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -75,41 +76,14 @@ async function run() {
       res.send(result);
     });
 
-    // parts post
+    // product post only admin
     app.post("/carParts", async (req, res) => {
       const newParts = req.body;
       const result = await carPartsCollection.insertOne(newParts);
       res.send(result);
     });
 
-    app.get("/productscategory", async (req, res) => {
-      const query = {};
-      const result = await carPartsCollection
-        .find(query)
-        .project({ category: 1 })
-        .toArray();
-      res.send(result);
-    });
-
-    // temporary to update field on Products
-    // app.get("/addselPrice", async (req, res) => {
-    //   const filter = {};
-    //   const options = { upsert: true };
-    //   const updatedDoc = {
-    //     $set: {
-    //       selPrice: 9999,
-    //     },
-    //   };
-    //   const result = await carPartsCollection.updateMany(
-    //     filter,
-    //     updatedDoc,
-    //     options
-    //   );
-    //   res.send(result);
-    // });
-
     // Product update only admin
-
     app.put("/carParts/:id", async (req, res) => {
       const id = req.params.id;
       const updateParts = req.body;
@@ -132,7 +106,25 @@ async function run() {
       res.send(result);
     });
 
-    // categoryCollection start for admin
+    // temporary to update field on Products
+    // app.get("/addselPrice", async (req, res) => {
+    //   const filter = {};
+    //   const options = { upsert: true };
+    //   const updatedDoc = {
+    //     $set: {
+    //       selPrice: 9999,
+    //     },
+    //   };
+    //   const result = await carPartsCollection.updateMany(
+    //     filter,
+    //     updatedDoc,
+    //     options
+    //   );
+    //   res.send(result);
+    // });
+
+    // Start
+    // start categoryCollection for only admin
     app.get("/category", async (req, res) => {
       const result = await categoryCollection.find().toArray();
       res.send(result);
@@ -158,28 +150,9 @@ async function run() {
       res.send(result);
     });
     // categoryCollection end for admin
+    // End
 
-    // Up Coming
-    app.get("/upComing", async (req, res) => {
-      const result = await upComingCollection.find().toArray();
-      res.send(result);
-    });
-
-    // Up Coming start for admin
-    app.post("/upComing", async (req, res) => {
-      const newCategory = req.body;
-      const result = await upComingCollection.insertOne(newCategory);
-      res.send(result);
-    });
-
-    app.delete("/upComing/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await upComingCollection.deleteOne(query);
-      res.send(result);
-    });
-    // Up Coming end for admin
-
+    // Start
     // sub category start for admin
     app.get("/subcategory", async (req, res) => {
       const result = await subCategoryColl.find().toArray();
@@ -206,6 +179,28 @@ async function run() {
       res.send(result);
     });
     // sub category end for admin
+    // End
+
+    // Up Coming
+    app.get("/upComing", async (req, res) => {
+      const result = await upComingCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Up Coming start for admin
+    app.post("/upComing", async (req, res) => {
+      const newCategory = req.body;
+      const result = await upComingCollection.insertOne(newCategory);
+      res.send(result);
+    });
+
+    app.delete("/upComing/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await upComingCollection.deleteOne(query);
+      res.send(result);
+    });
+    // Up Coming end for admin
 
     // get users
     app.get("/users", async (req, res) => {
@@ -266,7 +261,8 @@ async function run() {
       res.send({ result, token });
     });
 
-    //get add to card
+    // Start
+    //Start add to card for user
     app.get("/addToCard", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
@@ -275,7 +271,6 @@ async function run() {
       res.send(result);
     });
 
-    //delete add to card
     app.delete("/addToCard/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -283,7 +278,6 @@ async function run() {
       res.send(result);
     });
 
-    //post add to card
     app.post("/addToCard", async (req, res) => {
       const purchase = req.body;
       const partsQuantity = purchase.partsQuantity;
@@ -296,8 +290,11 @@ async function run() {
         return res.send({ success: false });
       }
     });
+    //end add to card for user
+    // End
 
-    // orders start
+    // Start
+    // orders start user
     app.get("/orders", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
@@ -318,9 +315,11 @@ async function run() {
       const result = await ordersCollection.insertOne(orders);
       res.send(result);
     });
-    // orders end
+    // orders end user
+    // End
 
-    // manage orders start
+    // Start
+    // manage orders start admin
     app.get("/manageOrders", async (req, res) => {
       const result = await ordersCollection.find().toArray();
       res.send(result);
@@ -350,8 +349,65 @@ async function run() {
       );
       res.send(result);
     });
+    // manage orders end admin
+    // End
 
-    // manage orders end
+    // Start
+    // reviews start user
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const cursor = reviewsCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/reviews/email", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = reviewsCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviewsCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/reviews", async (req, res) => {
+      const reviews = req.body;
+      const result = await reviewsCollection.insertOne(reviews);
+      res.send(result);
+    });
+
+    app.put("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateStatus = req.body;
+      const query = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          status: updateStatus.status,
+        },
+      };
+      const result = await reviewsCollection.updateOne(
+        query,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    app.delete("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviewsCollection.deleteOne(query);
+      res.send(result);
+    });
+    // reviews end user
+    // End
   } finally {
   }
 }
