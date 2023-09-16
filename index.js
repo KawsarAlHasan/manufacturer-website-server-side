@@ -93,6 +93,11 @@ async function run() {
         $set: {
           name: updateParts.name,
           price: updateParts.price,
+          salePrice: updateParts.salePrice,
+          colorfamily: updateParts.colorfamily,
+          cColorfamily: updateParts.cColorfamily,
+          customSize: updateParts.customSize,
+          size: updateParts.size,
           quantity: updateParts.quantity,
           orderQuantity: updateParts.orderQuantity,
           description: updateParts.description,
