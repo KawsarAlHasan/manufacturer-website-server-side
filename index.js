@@ -245,6 +245,24 @@ async function run() {
       res.send(result);
     });
 
+    // delete admin
+    app.put("/users/admin/delete/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          role: "user",
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
